@@ -4,7 +4,8 @@ on:
 jobs:
   secure-rdp:
     runs-on: windows-latest
-    timeout-minutes: 2000
+    timeout-minutes: 10080
+    
     steps:
       - name: Configure Core RDP Settings
         run: |
@@ -40,7 +41,10 @@ jobs:
           $installerPath = "$env:TEMP\tailscale.msi"
 
           Invoke-WebRequest -Uri $tsUrl -OutFile $installerPath
-          Start-Process msiexec.exe -ArgumentList "/i", ""$installerPath"", "/quiet", "/norestart" -Wait
+          
+          # چارەسەری کێشە ✅
+          Start-Process msiexec.exe -ArgumentList "/i "$installerPath" /quiet /norestart" -Wait
+          
           Remove-Item $installerPath -Force
 
       - name: Establish Tailscale Connection
