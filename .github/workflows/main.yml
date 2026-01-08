@@ -35,17 +35,27 @@ jobs:
               exit 1
           }
 
-      - name: Install Tailscale
+      - name: Install Tailscale (Fixed Version)
         run: |
+          # URLی ڕاست
           $tsUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-1.82.0-amd64.msi"
           $installerPath = "$env:TEMP\tailscale.msi"
-
+          
+          Write-Host "Downloading Tailscale..."
           Invoke-WebRequest -Uri $tsUrl -OutFile $installerPath
           
-          # چارەسەری کێشە ✅
-          Start-Process msiexec.exe -ArgumentList "/i "$installerPath" /quiet /norestart" -Wait
+          Write-Host "Installing Tailscale..."
+          # ڕێگەی سادە و ڕاست
+          $process = Start-Process msiexec.exe -ArgumentList "/i "$installerPath" /quiet /norestart" -Wait -PassThru
+          
+          if ($process.ExitCode -ne 0) {
+              Write-Error "Installation failed. Trying alternative method..."
+              # ڕێگەی جیاواز
+              & msiexec.exe /i "$installerPath" /quiet /norestart
+          }
           
           Remove-Item $installerPath -Force
+          Write-Host "Tailscale installation completed!"
 
       - name: Establish Tailscale Connection
         run: |
